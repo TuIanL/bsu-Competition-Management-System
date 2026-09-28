@@ -1,0 +1,1 @@
+# bsu-Competition-Management-System
