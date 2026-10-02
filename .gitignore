@@ -1,0 +1,24 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---- SQLite 数据库（由 init_db.py + seed.py 生成，不入库）----
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- 小程序 ----
+miniprogram/node_modules/
+miniprogram/miniprogram_npm/
+project.private.config.json
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
