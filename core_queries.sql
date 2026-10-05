@@ -2,9 +2,10 @@
 -- 体育赛事志愿者调度系统 · 核心查询 SQL
 -- 文件名：core_queries.sql
 -- 说明：后端 Flask API 直接复制使用，字段名已验证
+-- 版本：V1.2.1（修正 GROUP BY，增加可报名班次过滤）
 -- ========================================================
 
--- ① 查某班次的所有报名人（调度页用）
+-- ① 查某班次的所有报名人（调度页参考用）
 SELECT v.name, v.student_no, a.status
 FROM application a
 JOIN volunteer v ON a.volunteer_id = v.id
@@ -12,7 +13,8 @@ WHERE a.shift_id = ?
 ORDER BY a.applied_at;
 
 -- ② 查某志愿者的全部班次（我的班次页用）
-SELECT s.start_time, s.end_time, e.name AS event_name, r.name AS role_name,
+SELECT a.id AS assignment_id, s.start_time, s.end_time,
+       e.name AS event_name, r.name AS role_name,
        a.status, a.check_in_at, a.check_out_at
 FROM assignment a
 JOIN shift s ON a.shift_id = s.id
@@ -31,7 +33,8 @@ WHERE volunteer_id = ?
   AND check_in_at IS NOT NULL
   AND check_out_at IS NOT NULL;
 
--- ④ 查可报名的班次（志愿者端报名页用）
+-- ④ 查该志愿者可报名的班次（志愿者端报名页用）
+-- 参数：volunteer_id（传两次）
 SELECT s.id, e.name AS event_name, r.name AS role_name,
        s.start_time, s.end_time, s.required_count,
        s.required_count - COUNT(a.id) AS remaining
@@ -40,7 +43,9 @@ JOIN event e ON s.event_id = e.id
 JOIN role r ON s.role_id = r.id
 LEFT JOIN assignment a ON a.shift_id = s.id AND a.status IN ('ASSIGNED','COMPLETED')
 WHERE s.start_time > datetime('now','localtime')
-GROUP BY s.id
+  AND s.id NOT IN (SELECT shift_id FROM application WHERE volunteer_id = ?)
+  AND s.id NOT IN (SELECT shift_id FROM assignment WHERE volunteer_id = ?)
+GROUP BY s.id, e.name, r.name, s.start_time, s.end_time, s.required_count
 HAVING remaining > 0;
 
 -- ⑤ 查管理员 Dashboard 缺口排行
@@ -49,3 +54,11 @@ SELECT shift_id, event_name, role_name,
 FROM v_shift_status
 ORDER BY remaining_count DESC
 LIMIT 10;
+
+-- ⑥ 查某班次的全部排班记录（管理端班次名单用）
+SELECT a.id AS assignment_id, v.id AS volunteer_id, v.name, v.student_no,
+       a.status, a.assigned_at, a.check_in_at, a.check_out_at
+FROM assignment a
+JOIN volunteer v ON a.volunteer_id = v.id
+WHERE a.shift_id = ?
+ORDER BY a.assigned_at DESC;
