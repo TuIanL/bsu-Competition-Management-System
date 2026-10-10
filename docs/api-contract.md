@@ -92,10 +92,13 @@
 成功 201：`{ "success": true, "data": { "id":1, "status":"ASSIGNED", "assigned_at":"2026-10-02 10:00:00" } }`
 
 ### 5.3 POST /api/applications（志愿者报名）
-请求：`{ "shift_id": 2 }`（volunteer_id 从 session 取）。后端还需确认志愿者为 `ACTIVE`，并按 `core_queries.sql` ④ 的口径校验班次尚未开始、所属赛事未结束、仍有名额且本人未报名/未被排班；报名成功状态为 `PENDING`。
+请求：`{ "shift_id": 2 }`（volunteer_id 从 session 取）。后端还需确认志愿者为 `ACTIVE`，并按 `core_queries.sql` ④ 的口径校验班次尚未开始、所属赛事未结束、仍有名额且本人未被排班；报名成功状态为 `PENDING`。
 成功 201：`{ "success": true, "data": { "id":1, "shift_id":2, "status":"PENDING" } }`
 失败 409：`{ "success": false, "message": "该岗位已经报名" }`（捕获 UNIQUE 约束冲突）
-注意：UNIQUE(volunteer_id, shift_id) 下 `WITHDRAWN` 记录仍占用唯一键，撤回后重新报名应 UPDATE 原记录回 `PENDING`，而非 INSERT 新行（见 `data_dictionary.md` application 表说明）。
+注意：UNIQUE(volunteer_id, shift_id) 下 `WITHDRAWN` 记录仍占用唯一键。报名接口三分支：
+1. 无记录 → INSERT 新行（status=`PENDING`）
+2. 已有 `WITHDRAWN` 记录 → UPDATE 原记录回 `PENDING` 并刷新 `applied_at`，**不新增行**（见 `data_dictionary.md` application 表说明）
+3. 已有 `PENDING` / `APPROVED` 记录 → 返回 409 `该岗位已经报名`
 
 ### 5.4 POST /api/assignments/:id/checkin（签到）
 校验：本人、`assignment.status='ASSIGNED'`、尚未签到，并且当前时间在班次开始和结束时间范围内；否则返回 403 或 400。
@@ -116,7 +119,7 @@
 volunteer_id 从 session 取，SQL 中需作为参数传入**两次**（两个 `NOT IN` 子查询各一次）。口径：
 1. `start_time > now`：班次尚未开始；
 2. `e.status IN ('PLANNED','ONGOING')`：所属赛事未结束；
-3. 不在该志愿者的 application 记录中（含 `WITHDRAWN`，撤回后走 5.3 的 UPDATE 重新报名）；
+3. 不在该志愿者的 `PENDING`/`APPROVED` application 记录中（`WITHDRAWN` 不阻塞，撤回后该班次重新展示，走 5.3 的 UPDATE 重新报名）；
 4. 不在该志愿者的 assignment 记录中；
 5. `remaining = required_count - 有效排班数(ASSIGNED/COMPLETED) > 0`。
 
@@ -126,4 +129,5 @@ volunteer_id 从 session 取，SQL 中需作为参数传入**两次**（两个 `
 - [ ] 响应格式统一为 `{success, data/message}`（沿用双端方案），是否替换掉 v1 的 `{data/error}`？
 - [ ] 取消调度用 `DELETE /api/assignments/:id` 软取消（保留历史）是否 OK？
 - [ ] 志愿者端页面的接口是否与 `docs/字段映射表.md` 字段一致？
-- [ ] `/api/volunteer/positions` 按 5.7 实现：查询④需传 session volunteer_id 两次，列表排除已报名/已排班（V1.2.2 变更）
+- [ ] `/api/volunteer/positions` 按 5.7 实现：查询④需传 session volunteer_id 两次，列表排除 PENDING/APPROVED 报名及全部有效排班；WITHDRAWN 班次重新展示（V1.2.3 变更）
+- [ ] 报名接口 `/api/applications` 实现三分支（无记录 INSERT / WITHDRAWN 更新原记录 / PENDING·APPROVED 返回 409），不能只写 INSERT
