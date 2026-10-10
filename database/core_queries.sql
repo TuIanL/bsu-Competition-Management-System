@@ -46,7 +46,7 @@ LEFT JOIN assignment a ON a.shift_id = s.id AND a.status IN ('ASSIGNED','COMPLET
 WHERE s.start_time > datetime('now','localtime')
   AND e.status IN ('PLANNED','ONGOING')
   AND s.id NOT IN (SELECT shift_id FROM application WHERE volunteer_id = ? AND status IN ('PENDING','APPROVED'))
-  AND s.id NOT IN (SELECT shift_id FROM assignment WHERE volunteer_id = ?)
+  AND s.id NOT IN (SELECT shift_id FROM assignment WHERE volunteer_id = ? AND status IN ('ASSIGNED','COMPLETED'))
 GROUP BY s.id, e.name, r.name, s.start_time, s.end_time, s.required_count
 HAVING remaining > 0;
 

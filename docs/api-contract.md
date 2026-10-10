@@ -92,7 +92,7 @@
 成功 201：`{ "success": true, "data": { "id":1, "status":"ASSIGNED", "assigned_at":"2026-10-02 10:00:00" } }`
 
 ### 5.3 POST /api/applications（志愿者报名）
-请求：`{ "shift_id": 2 }`（volunteer_id 从 session 取）。后端还需确认志愿者为 `ACTIVE`，并按 `core_queries.sql` ④ 的口径校验班次尚未开始、所属赛事未结束、仍有名额且本人未被排班；报名成功状态为 `PENDING`。
+请求：`{ "shift_id": 2 }`（volunteer_id 从 session 取）。后端还需确认志愿者为 `ACTIVE`，并按 `core_queries.sql` ④ 的口径校验班次尚未开始、所属赛事未结束、仍有名额且本人无有效排班（`ASSIGNED`/`COMPLETED`）；报名成功状态为 `PENDING`。
 成功 201：`{ "success": true, "data": { "id":1, "shift_id":2, "status":"PENDING" } }`
 失败 409：`{ "success": false, "message": "该岗位已经报名" }`（捕获 UNIQUE 约束冲突）
 注意：UNIQUE(volunteer_id, shift_id) 下 `WITHDRAWN` 记录仍占用唯一键。报名接口三分支：
@@ -120,7 +120,7 @@ volunteer_id 从 session 取，SQL 中需作为参数传入**两次**（两个 `
 1. `start_time > now`：班次尚未开始；
 2. `e.status IN ('PLANNED','ONGOING')`：所属赛事未结束；
 3. 不在该志愿者的 `PENDING`/`APPROVED` application 记录中（`WITHDRAWN` 不阻塞，撤回后该班次重新展示，走 5.3 的 UPDATE 重新报名）；
-4. 不在该志愿者的 assignment 记录中；
+4. 不在该志愿者的有效排班（`ASSIGNED`/`COMPLETED`）记录中（`CANCELLED` 不阻塞，取消排班后该班次重新展示）；
 5. `remaining = required_count - 有效排班数(ASSIGNED/COMPLETED) > 0`。
 
 ## 6. 待章新怡确认事项（对接点）
