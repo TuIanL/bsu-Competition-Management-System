@@ -3,7 +3,7 @@
 -- 文件名：core_queries.sql
 -- 说明：后端 Flask API 直接复制使用，字段名已验证
 -- 版本：V1.2.3（PR#2 审阅后：WITHDRAWN 班次重新出现在可报名列表，
---       报名接口三分支：无记录 INSERT / WITHDRAWN 更新原记录 / PENDING·APPROVED 返回 409）
+--       报名接口：无记录 INSERT / WITHDRAWN 更新原记录 / PENDING·APPROVED·REJECTED 返回 409）
 -- ========================================================
 
 -- ① 查某班次的所有报名人（调度页参考用）
@@ -45,7 +45,7 @@ JOIN role r ON s.role_id = r.id
 LEFT JOIN assignment a ON a.shift_id = s.id AND a.status IN ('ASSIGNED','COMPLETED')
 WHERE s.start_time > datetime('now','localtime')
   AND e.status IN ('PLANNED','ONGOING')
-  AND s.id NOT IN (SELECT shift_id FROM application WHERE volunteer_id = ? AND status IN ('PENDING','APPROVED'))
+  AND s.id NOT IN (SELECT shift_id FROM application WHERE volunteer_id = ? AND status IN ('PENDING','APPROVED','REJECTED'))
   AND s.id NOT IN (SELECT shift_id FROM assignment WHERE volunteer_id = ? AND status IN ('ASSIGNED','COMPLETED'))
 GROUP BY s.id, e.name, r.name, s.start_time, s.end_time, s.required_count
 HAVING remaining > 0;
