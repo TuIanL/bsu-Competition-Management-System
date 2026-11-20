@@ -1,0 +1,22 @@
+<view class="form">
+  <view class="field">
+    <text class="field-label">岗位名称</text>
+    <input class="field-input" placeholder="例如：检票员" placeholder-class="placeholder"
+           value="{{form.name}}" data-field="name" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">技能要求</text>
+    <input class="field-input" placeholder="选填，多个用顿号分隔" placeholder-class="placeholder"
+           value="{{form.required_skill}}" data-field="required_skill" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">岗位说明</text>
+    <input class="field-input" placeholder="选填" placeholder-class="placeholder"
+           value="{{form.description}}" data-field="description" bindinput="onInput" />
+  </view>
+</view>
+<view class="field-hint">志愿者技能里包含任一要求的关键词，调度页就会标注“技能匹配”。</view>
+<view class="form-actions">
+  <view class="btn btn-block {{submitting ? 'btn-off' : ''}}" hover-class="btn-hover" bindtap="submit">{{id ? '保存修改' : '创建岗位'}}</view>
+  <view class="btn btn-block btn-danger" wx:if="{{id && !shiftCount}}" hover-class="btn-hover" bindtap="remove">删除岗位</view>
+</view>

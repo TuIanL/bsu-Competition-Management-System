@@ -1,0 +1,42 @@
+<view class="hero">
+  <!-- 用球场线条画出一个发球区，作为整个小程序唯一的装饰元素 -->
+  <view class="court">
+    <view class="court-line service"></view>
+    <view class="court-line center"></view>
+    <view class="ball"></view>
+  </view>
+  <view class="brand">
+    <view class="title">赛事志愿者调度</view>
+    <view class="subtitle">组委会与志愿者使用同一个入口，登录后自动进入各自的页面</view>
+  </view>
+</view>
+
+<view class="form login-form">
+  <view class="field">
+    <text class="field-label">账号</text>
+    <input class="field-input" placeholder="管理员用户名或学号" placeholder-class="placeholder"
+           value="{{form.username}}" data-field="username" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">密码</text>
+    <input class="field-input" placeholder="志愿者初始密码为学号后六位" placeholder-class="placeholder"
+           password="{{!showPwd}}" value="{{form.password}}" data-field="password" bindinput="onInput"
+           confirm-type="done" bindconfirm="submit" />
+    <text class="link" bindtap="togglePwd">{{showPwd ? '隐藏' : '显示'}}</text>
+  </view>
+</view>
+
+<view class="form-actions">
+  <view class="btn btn-block {{submitting ? 'btn-off' : ''}}" hover-class="btn-hover" bindtap="submit">
+    {{submitting ? '正在登录' : '登录'}}
+  </view>
+</view>
+
+<view class="demo">
+  <view class="demo-title">演示账号（点一下自动填入）</view>
+  <view wx:for="{{demos}}" wx:key="username" class="demo-item" hover-class="row-hover"
+        data-index="{{index}}" bindtap="fillDemo">
+    <text>{{item.label}}</text>
+    <text class="muted num">{{item.username}}</text>
+  </view>
+</view>

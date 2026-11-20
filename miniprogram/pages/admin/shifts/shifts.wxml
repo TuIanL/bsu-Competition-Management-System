@@ -1,0 +1,43 @@
+<view class="with-tabbar">
+  <view class="segments">
+    <view wx:for="{{scopes}}" wx:key="key" class="segment {{scope === item.key ? 'on' : ''}}"
+          data-key="{{item.key}}" bindtap="switchScope">{{item.text}}</view>
+  </view>
+  <view class="toolbar">
+    <picker class="filter" range="{{events}}" range-key="name" value="{{eventIndex}}" bindchange="pickEvent">
+      <view class="filter-text ellipsis">{{events[eventIndex].name}} ▾</view>
+    </picker>
+    <view class="btn" hover-class="btn-hover" bindtap="create">新建班次</view>
+  </view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+  <view class="empty" wx:elif="{{!shifts.length}}">
+    <view>这里还没有班次</view>
+    <view class="btn" bindtap="create">新建班次</view>
+  </view>
+
+  <view class="section list" wx:else>
+    <view wx:for="{{shifts}}" wx:key="id" class="row shift" hover-class="row-hover"
+          data-id="{{item.id}}" bindtap="open">
+      <view class="when">
+        <view class="when-hours num">{{item.time.hours}}</view>
+        <view class="when-day">{{item.time.day}}</view>
+      </view>
+      <view class="row-main">
+        <view class="row-title ellipsis">{{item.role_name}}</view>
+        <view class="row-sub ellipsis">{{item.event_name}}</view>
+        <view class="chips">
+          <text class="chip chip-ball" wx:if="{{item.phase === 'ongoing'}}">进行中</text>
+          <text class="chip chip-grey" wx:if="{{item.phase === 'ended'}}">已结束</text>
+          <text class="chip" wx:if="{{item.pending_applications}}">{{item.pending_applications}} 人报名待处理</text>
+        </view>
+        <view class="seat-line"><seat-bar required="{{item.required_count}}" assigned="{{item.assigned_count}}" compact="{{true}}" /></view>
+      </view>
+    </view>
+  </view>
+</view>
+<tab-bar role="admin" current="shifts" />

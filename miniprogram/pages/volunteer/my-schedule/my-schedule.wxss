@@ -1,0 +1,10 @@
+.head { display: flex; justify-content: space-between; align-items: flex-start; padding: 32rpx 32rpx 0; }
+.hello { font-size: 36rpx; font-weight: 600; }
+.head-links .link { margin-left: 28rpx; }
+.logout { color: #C2452D; }
+.shift { align-items: center; }
+.when { margin-bottom: 6rpx; }
+.when-hours { font-size: 40rpx; font-weight: 700; color: #1F4E8C; }
+.when-day { font-size: 24rpx; color: #6B7686; margin-left: 14rpx; }
+.big { height: 80rpx; padding: 0 40rpx; font-size: 30rpx; }
+.foot-hint { padding: 24rpx 32rpx; font-size: 24rpx; color: #6B7686; }

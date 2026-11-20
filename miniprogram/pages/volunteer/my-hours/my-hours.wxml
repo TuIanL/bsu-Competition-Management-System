@@ -1,0 +1,31 @@
+<view class="with-tabbar">
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+
+  <block wx:elif="{{summary}}">
+    <view class="total">
+      <view class="total-line"><text class="total-num num">{{summary.hours}}</text><text class="total-unit">小时</text></view>
+      <view class="total-sub">已完成 {{summary.count}} 个班次，共 {{summary.text}}</view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">已完成的班次</text>
+        <text class="section-note">只计班次时间内的在岗时长</text>
+      </view>
+      <view class="empty" wx:if="{{!details.length}}">还没有完成的班次。签到并签退后，时长会出现在这里</view>
+      <view wx:for="{{details}}" wx:key="assignment_id" class="row">
+        <view class="row-main">
+          <view class="row-title">{{item.role}}</view>
+          <view class="row-sub">{{item.event}}</view>
+          <view class="row-sub num">{{item.date}} 班次 {{item.shiftHours}}，{{item.actual}}</view>
+        </view>
+        <view class="row-side"><text class="duration num">{{item.durationText}}</text></view>
+      </view>
+    </view>
+  </block>
+</view>
+<tab-bar role="volunteer" current="my-hours" />

@@ -1,0 +1,31 @@
+<view class="form">
+  <view class="field">
+    <text class="field-label">赛事名称</text>
+    <input class="field-input" placeholder="例如：校运会篮球赛" placeholder-class="placeholder"
+           value="{{form.name}}" data-field="name" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">比赛日期</text>
+    <picker class="field-picker" mode="date" value="{{form.event_date}}" bindchange="pickDate">
+      <view class="num">{{form.event_date}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <text class="field-label">场馆</text>
+    <input class="field-input" placeholder="选填" placeholder-class="placeholder"
+           value="{{form.venue}}" data-field="venue" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">状态</text>
+    <picker class="field-picker" range="{{statuses}}" range-key="text" value="{{statusIndex}}" bindchange="pickStatus">
+      <view>{{statuses[statusIndex].text}}</view>
+    </picker>
+  </view>
+</view>
+<view class="field-hint">赛事改为“已结束”后，志愿者端不再展示它的班次。</view>
+
+<view class="form-actions">
+  <view class="btn btn-block {{submitting ? 'btn-off' : ''}}" hover-class="btn-hover" bindtap="submit">{{id ? '保存修改' : '创建赛事'}}</view>
+  <view class="btn btn-block btn-ghost" wx:if="{{id}}" hover-class="btn-hover" bindtap="newShift">为这个赛事新建班次</view>
+  <view class="btn btn-block btn-danger" wx:if="{{id && !shiftCount}}" hover-class="btn-hover" bindtap="remove">删除赛事</view>
+</view>

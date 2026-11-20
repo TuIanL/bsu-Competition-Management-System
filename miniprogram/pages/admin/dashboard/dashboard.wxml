@@ -1,0 +1,77 @@
+<view class="with-tabbar">
+  <view class="head">
+    <view>
+      <view class="hello">{{name}}，你好</view>
+      <view class="muted small" wx:if="{{stats}}">数据更新于 {{stats.generated_at}}</view>
+    </view>
+    <view class="head-links">
+      <text class="link" bindtap="goPassword">改密码</text>
+      <text class="link logout" bindtap="logout">退出</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+
+  <block wx:elif="{{stats}}">
+    <!-- 组委会最关心的一句话：还缺多少人 -->
+    <view class="headline">
+      <view wx:if="{{stats.total_gap > 0}}">
+        未结束的班次里还缺 <text class="gap-num num">{{stats.total_gap}}</text> 人，分布在 {{stats.gap_shift_count}} 个班次
+      </view>
+      <view wx:else>所有未结束的班次都已排满</view>
+      <view class="headline-sub" wx:if="{{stats.on_duty_expected > 0}}">
+        正在进行的班次应到 {{stats.on_duty_expected}} 人，已签到 {{stats.on_duty_checked_in}} 人
+      </view>
+    </view>
+
+    <view class="figures">
+      <view class="figure">
+        <view class="figure-num num">{{stats.volunteer_active}}</view>
+        <view class="figure-label">在册志愿者<text class="muted">（共 {{stats.volunteer_total}}）</text></view>
+      </view>
+      <view class="figure">
+        <view class="figure-num num">{{stats.event_active}}</view>
+        <view class="figure-label">未结束赛事</view>
+      </view>
+      <view class="figure">
+        <view class="figure-num num">{{stats.shift_active}}</view>
+        <view class="figure-label">未结束班次<text class="muted">（共 {{stats.shift_total}}）</text></view>
+      </view>
+      <view class="figure">
+        <view class="figure-num num">{{stats.assignment_active}}</view>
+        <view class="figure-label">已调度人次</view>
+      </view>
+      <view class="figure">
+        <view class="figure-num num {{stats.pending_applications ? 'court' : ''}}">{{stats.pending_applications}}</view>
+        <view class="figure-label">待处理报名</view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <text class="section-title">缺员班次</text>
+        <text class="section-note">按缺口从大到小</text>
+      </view>
+      <view class="empty" wx:if="{{!gaps.length}}">没有缺员的班次</view>
+      <view wx:for="{{gaps}}" wx:key="shift_id" class="row" hover-class="row-hover"
+            data-id="{{item.shift_id}}" bindtap="openShift">
+        <view class="row-main">
+          <view class="row-title ellipsis">{{item.role_name}}</view>
+          <view class="row-sub ellipsis">
+            <text class="chip chip-ball" wx:if="{{item.live}}">进行中</text>{{item.time}}　{{item.event_name}}
+          </view>
+          <view class="seat-line"><seat-bar required="{{item.required_count}}" assigned="{{item.assigned_count}}" compact="{{true}}" /></view>
+        </view>
+        <view class="row-side"><text class="link">去安排</text></view>
+      </view>
+      <view class="row more" wx:if="{{gaps.length}}" bindtap="goShifts" hover-class="row-hover">
+        <text class="link">查看全部班次</text>
+      </view>
+    </view>
+  </block>
+</view>
+<tab-bar role="admin" current="dashboard" />

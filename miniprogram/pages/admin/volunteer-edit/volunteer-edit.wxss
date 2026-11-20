@@ -1,0 +1,2 @@
+.switch-wrap { display: flex; align-items: center; }
+.switch-wrap text { margin-left: 16rpx; }

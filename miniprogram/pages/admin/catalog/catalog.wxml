@@ -1,0 +1,43 @@
+<view class="with-tabbar">
+  <view class="segments">
+    <view class="segment {{tab === 'events' ? 'on' : ''}}" data-key="events" bindtap="switchTab">赛事（{{events.length}}）</view>
+    <view class="segment {{tab === 'roles' ? 'on' : ''}}" data-key="roles" bindtap="switchTab">岗位（{{roles.length}}）</view>
+  </view>
+  <view class="toolbar">
+    <text class="muted small grow">{{tab === 'events' ? '班次需要先有赛事' : '岗位的技能要求会用来提示“技能匹配”'}}</text>
+    <view class="btn" hover-class="btn-hover" bindtap="create">{{tab === 'events' ? '新建赛事' : '新建岗位'}}</view>
+  </view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+
+  <view class="section list" wx:elif="{{tab === 'events'}}">
+    <view class="empty" wx:if="{{!events.length}}">还没有赛事</view>
+    <view wx:for="{{events}}" wx:key="id" class="row" hover-class="row-hover" data-id="{{item.id}}" bindtap="openEvent">
+      <view class="row-main">
+        <view class="row-title">{{item.name}}</view>
+        <view class="row-sub"><text class="num">{{item.event_date}}</text>　{{item.venue || '未填写场馆'}}</view>
+      </view>
+      <view class="row-side column">
+        <text class="chip {{item.statusCls}}">{{item.statusText}}</text>
+        <text class="small muted">{{item.shift_count}} 个班次</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section list" wx:else>
+    <view class="empty" wx:if="{{!roles.length}}">还没有岗位</view>
+    <view wx:for="{{roles}}" wx:key="id" class="row" hover-class="row-hover" data-id="{{item.id}}" bindtap="openRole">
+      <view class="row-main">
+        <view class="row-title">{{item.name}}</view>
+        <view class="row-sub ellipsis">{{item.description || '暂无说明'}}</view>
+        <view class="chips" wx:if="{{item.required_skill}}"><text class="chip">需要：{{item.required_skill}}</text></view>
+      </view>
+      <view class="row-side"><text class="small muted">{{item.shift_count}} 个班次</text></view>
+    </view>
+  </view>
+</view>
+<tab-bar role="admin" current="catalog" />

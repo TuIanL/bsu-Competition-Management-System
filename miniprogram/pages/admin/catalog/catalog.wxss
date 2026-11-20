@@ -1,0 +1,6 @@
+.toolbar { border-bottom: 1rpx solid #E3E8EF; }
+.grow { flex: 1; }
+.list { margin-top: 0; }
+.list .row:first-child { border-top: none; }
+.column { flex-direction: column; align-items: flex-end; }
+.column .chip { margin-right: 0; margin-bottom: 8rpx; }

@@ -1,0 +1,51 @@
+<view class="with-tabbar">
+  <view class="head">
+    <view>
+      <view class="hello">{{user.name}}</view>
+      <view class="muted small num">学号 {{user.student_no}}</view>
+    </view>
+    <view class="head-links">
+      <text class="link" bindtap="goPassword">改密码</text>
+      <text class="link logout" bindtap="logout">退出</text>
+    </view>
+  </view>
+
+  <view class="notice notice-clay" wx:if="{{user.must_change_password}}" bindtap="goPassword">
+    <text>你还在使用初始密码（学号后六位），请尽快修改</text><text class="bold">去修改</text>
+  </view>
+  <view class="notice" wx:if="{{pendingCount}}" bindtap="goPositions">
+    <text>你有 {{pendingCount}} 个报名正在等待组委会安排</text><text class="bold">查看</text>
+  </view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+  <view class="empty" wx:elif="{{!total}}">
+    <view>暂无已分配班次</view>
+    <view class="muted small">先去报名感兴趣的班次，组委会安排后会出现在这里</view>
+    <view class="btn" bindtap="goPositions">去报名</view>
+  </view>
+
+  <view class="section" wx:for="{{groups}}" wx:for-item="group" wx:key="key">
+    <view class="section-head"><text class="section-title">{{group.title}}</text></view>
+    <view wx:for="{{group.items}}" wx:key="assignment_id" class="row shift">
+      <view class="row-main">
+        <view class="when"><text class="when-hours num">{{item.time.hours}}</text><text class="when-day">{{item.time.day}}</text></view>
+        <view class="row-title">{{item.role_name}}</view>
+        <view class="row-sub">{{item.event_name}}</view>
+        <view class="row-sub" wx:if="{{item.venue || item.note}}">{{item.note || item.venue}}</view>
+        <view class="chips"><text class="chip {{item.statusCls}}">{{item.statusText}}</text></view>
+      </view>
+      <view class="row-side">
+        <view class="btn btn-ball big" wx:if="{{item.can_checkin}}" hover-class="btn-hover"
+              data-id="{{item.assignment_id}}" bindtap="checkin">签到</view>
+        <view class="btn big" wx:elif="{{item.can_checkout}}" hover-class="btn-hover"
+              data-id="{{item.assignment_id}}" bindtap="checkout">签退</view>
+      </view>
+    </view>
+  </view>
+  <view class="foot-hint" wx:if="{{total}}">班次开始前 30 分钟开放签到；签退后才计入志愿时长。</view>
+</view>
+<tab-bar role="volunteer" current="my-schedule" />

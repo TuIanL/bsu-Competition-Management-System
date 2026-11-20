@@ -1,0 +1,10 @@
+.toolbar { border-bottom: 1rpx solid #E3E8EF; }
+.filter { flex: 1; min-width: 0; }
+.filter-text { font-size: 28rpx; color: #1B2533; }
+.list { margin-top: 0; }
+.list .row:first-child { border-top: none; }
+.shift { align-items: flex-start; }
+.when { width: 200rpx; flex-shrink: 0; }
+.when-hours { font-size: 30rpx; font-weight: 700; color: #1F4E8C; }
+.when-day { font-size: 24rpx; color: #6B7686; margin-top: 4rpx; }
+.seat-line { margin-top: 12rpx; }

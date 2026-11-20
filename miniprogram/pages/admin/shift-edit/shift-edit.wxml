@@ -1,0 +1,50 @@
+<view class="form">
+  <view class="field">
+    <text class="field-label">赛事</text>
+    <picker class="field-picker" range="{{events}}" range-key="name" value="{{eventIndex}}" bindchange="pickEvent">
+      <view class="ellipsis {{eventIndex < 0 ? 'placeholder' : ''}}">{{eventIndex < 0 ? '选择赛事' : events[eventIndex].name}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <text class="field-label">岗位</text>
+    <picker class="field-picker" range="{{roles}}" range-key="name" value="{{roleIndex}}" bindchange="pickRole">
+      <view class="{{roleIndex < 0 ? 'placeholder' : ''}}">{{roleIndex < 0 ? '选择岗位' : roles[roleIndex].name}}</view>
+    </picker>
+  </view>
+</view>
+
+<view class="form">
+  <view class="field">
+    <text class="field-label">开始</text>
+    <picker class="field-picker half" mode="date" value="{{form.start_date}}" data-field="start_date" bindchange="pickTime">
+      <view class="num">{{form.start_date}}</view>
+    </picker>
+    <picker class="field-picker half" mode="time" value="{{form.start_time}}" data-field="start_time" bindchange="pickTime">
+      <view class="num">{{form.start_time}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <text class="field-label">结束</text>
+    <picker class="field-picker half" mode="date" value="{{form.end_date}}" data-field="end_date" bindchange="pickTime">
+      <view class="num">{{form.end_date}}</view>
+    </picker>
+    <picker class="field-picker half" mode="time" value="{{form.end_time}}" data-field="end_time" bindchange="pickTime">
+      <view class="num">{{form.end_time}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <text class="field-label">需求人数</text>
+    <input class="field-input" type="number" value="{{form.required_count}}" data-field="required_count" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">备注</text>
+    <input class="field-input" placeholder="例如：钻石球场 日场" placeholder-class="placeholder"
+           value="{{form.note}}" data-field="note" bindinput="onInput" />
+  </view>
+</view>
+<view class="field-hint" wx:if="{{id && assignedCount}}">已安排 {{assignedCount}} 人，需求人数不能少于这个数；调整时间时，系统会检查已安排的人是否因此产生冲突。</view>
+
+<view class="form-actions">
+  <view class="btn btn-block {{submitting ? 'btn-off' : ''}}" hover-class="btn-hover" bindtap="submit">{{id ? '保存修改' : '创建班次'}}</view>
+  <view class="btn btn-block btn-danger" wx:if="{{id}}" hover-class="btn-hover" bindtap="remove">删除班次</view>
+</view>

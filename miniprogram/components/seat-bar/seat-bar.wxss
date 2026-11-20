@@ -1,0 +1,14 @@
+.seat-bar { display: flex; align-items: center; }
+.seats { display: flex; flex-wrap: nowrap; }
+.seat {
+  width: 26rpx; height: 34rpx; margin-right: 8rpx; border-radius: 4rpx;
+  border: 3rpx solid #C2452D; background: #fff;
+}
+.seat.taken { border-color: #1F4E8C; background: #1F4E8C; }
+.bar { width: 260rpx; height: 18rpx; border-radius: 9rpx; background: #FBEAE6; overflow: hidden; }
+.bar-fill { height: 100%; background: #1F4E8C; }
+.count { margin-left: 12rpx; font-size: 26rpx; font-weight: 600; color: #1B2533; font-variant-numeric: tabular-nums; }
+.gap { margin-left: 12rpx; font-size: 24rpx; color: #C2452D; font-weight: 600; }
+.full { margin-left: 12rpx; font-size: 24rpx; color: #2F7D4F; font-weight: 600; }
+.compact .seat { width: 20rpx; height: 26rpx; margin-right: 6rpx; border-width: 2rpx; }
+.compact .count, .compact .gap, .compact .full { font-size: 22rpx; }

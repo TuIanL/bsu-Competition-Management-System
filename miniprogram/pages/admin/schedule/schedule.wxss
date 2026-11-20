@@ -1,0 +1,12 @@
+.shift-head { background: #1F4E8C; color: #fff; padding: 32rpx 32rpx 36rpx; }
+.sh-top { display: flex; justify-content: space-between; align-items: center; }
+.sh-time { font-size: 60rpx; font-weight: 700; letter-spacing: 1rpx; }
+.light { color: #fff; opacity: 0.9; }
+.sh-day { font-size: 26rpx; opacity: 0.85; }
+.sh-phase { margin-left: 12rpx; padding: 0 10rpx; border-radius: 6rpx; background: #D9E650; color: #1B2533; font-size: 22rpx; }
+.sh-role { font-size: 38rpx; font-weight: 600; margin-top: 20rpx; }
+.sh-meta { font-size: 26rpx; opacity: 0.85; margin-top: 4rpx; }
+.sh-seats { margin-top: 24rpx; padding: 16rpx 20rpx; background: #fff; border-radius: 10rpx; display: inline-flex; }
+.toolbar { padding-top: 0; }
+.dim .row-title { color: #6B7686; }
+.foot-hint { padding: 24rpx 32rpx 60rpx; font-size: 24rpx; color: #6B7686; }

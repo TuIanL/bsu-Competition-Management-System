@@ -1,0 +1,34 @@
+<view class="with-tabbar">
+  <view class="segments">
+    <view wx:for="{{filters}}" wx:key="key" class="segment {{status === item.key ? 'on' : ''}}"
+          data-key="{{item.key}}" bindtap="switchFilter">{{item.text}}</view>
+  </view>
+  <view class="toolbar">
+    <input class="search" placeholder="搜索姓名、学号或技能" placeholder-class="placeholder"
+           bindinput="onKeyword" confirm-type="search" bindconfirm="load" />
+    <view class="btn" hover-class="btn-hover" bindtap="create">新增</view>
+  </view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+  <view class="empty" wx:elif="{{!list.length}}">没有找到志愿者</view>
+
+  <view class="section list" wx:else>
+    <view wx:for="{{list}}" wx:key="id" class="row" hover-class="row-hover" data-id="{{item.id}}" bindtap="open">
+      <view class="row-main">
+        <view class="row-title {{item.status === 'INACTIVE' ? 'muted' : ''}}">
+          {{item.name}} <text class="muted small num">{{item.student_no}}</text>
+        </view>
+        <view class="row-sub ellipsis">{{item.skill || '未填写技能'}}</view>
+      </view>
+      <view class="row-side">
+        <text class="chip chip-grey" wx:if="{{item.status === 'INACTIVE'}}">已停用</text>
+        <text class="small muted num" wx:else>{{item.assignment_count}} 个班次</text>
+      </view>
+    </view>
+  </view>
+</view>
+<tab-bar role="admin" current="volunteers" />

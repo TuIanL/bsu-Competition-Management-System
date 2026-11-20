@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/admin/dashboard/dashboard",
+    "pages/admin/shifts/shifts",
+    "pages/admin/shift-edit/shift-edit",
+    "pages/admin/schedule/schedule",
+    "pages/admin/volunteers/volunteers",
+    "pages/admin/volunteer-edit/volunteer-edit",
+    "pages/admin/catalog/catalog",
+    "pages/admin/event-edit/event-edit",
+    "pages/admin/role-edit/role-edit",
+    "pages/volunteer/my-schedule/my-schedule",
+    "pages/volunteer/positions/positions",
+    "pages/volunteer/my-hours/my-hours",
+    "pages/password/password"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1F4E8C",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "赛事志愿者调度",
+    "backgroundColor": "#F3F6FA",
+    "backgroundTextStyle": "dark"
+  },
+  "usingComponents": {
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "seat-bar": "/components/seat-bar/seat-bar"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

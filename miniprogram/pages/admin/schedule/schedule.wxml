@@ -1,0 +1,86 @@
+<view class="empty" wx:if="{{loading}}">加载中…</view>
+<view class="empty" wx:elif="{{error}}">
+  <view>{{error}}</view>
+  <view class="btn btn-ghost" bindtap="load">重试</view>
+</view>
+
+<block wx:elif="{{shift}}">
+  <!-- 当前班次 -->
+  <view class="shift-head">
+    <view class="sh-top">
+      <view class="sh-time num">{{time.hours}}</view>
+      <text class="link light" bindtap="edit">编辑班次</text>
+    </view>
+    <view class="sh-day">{{time.day}}<text class="sh-phase" wx:if="{{shift.phase !== 'upcoming'}}">{{phaseText}}</text></view>
+    <view class="sh-role">{{shift.role_name}}</view>
+    <view class="sh-meta">{{shift.event_name}}</view>
+    <view class="sh-meta" wx:if="{{shift.venue || shift.note}}">{{shift.venue}}{{shift.venue && shift.note ? '，' : ''}}{{shift.note}}</view>
+    <view class="sh-meta" wx:if="{{shift.required_skill}}">技能要求：{{shift.required_skill}}</view>
+    <view class="sh-seats"><seat-bar required="{{shift.required_count}}" assigned="{{shift.assigned_count}}" /></view>
+  </view>
+
+  <!-- 已安排名单 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">已安排</text>
+      <text class="section-note">{{shift.assigned_count}} / {{shift.required_count}} 人</text>
+    </view>
+    <view class="empty small" wx:if="{{!roster.length}}">还没有安排任何人</view>
+    <view wx:for="{{roster}}" wx:key="assignment_id" class="row">
+      <view class="row-main">
+        <view class="row-title">{{item.name}} <text class="muted small num">{{item.student_no}}</text></view>
+        <view class="chips"><text class="chip {{item.statusCls}}">{{item.statusText}}</text></view>
+      </view>
+      <view class="row-side" wx:if="{{item.canCancel && shift.phase !== 'ended'}}">
+        <view class="btn btn-danger" hover-class="btn-hover" data-id="{{item.assignment_id}}" data-name="{{item.name}}" bindtap="cancel">取消</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 报名意向（调度参考，非强制流程） -->
+  <view class="section" wx:if="{{applications.length}}">
+    <view class="section-head">
+      <text class="section-title">报名意向</text>
+      <text class="section-note">志愿者自己提交，安排即视为通过</text>
+    </view>
+    <view wx:for="{{applications}}" wx:key="application_id" class="row">
+      <view class="row-main">
+        <view class="row-title">{{item.name}} <text class="muted small num">{{item.student_no}}</text></view>
+        <view class="row-sub">{{item.skill || '未填写技能'}}</view>
+        <view class="chips"><text class="chip {{item.status === 'PENDING' ? '' : 'chip-grey'}}">{{item.statusText}}</text></view>
+      </view>
+      <view class="row-side" wx:if="{{item.status === 'PENDING' && shift.phase !== 'ended'}}">
+        <view class="btn btn-quiet" hover-class="btn-hover" data-id="{{item.application_id}}" data-name="{{item.name}}" bindtap="reject">拒绝</view>
+        <view class="btn" hover-class="btn-hover" data-id="{{item.volunteer_id}}" data-name="{{item.name}}" bindtap="assign">安排</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 候选志愿者 -->
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">候选志愿者</text>
+      <text class="section-note">可安排的排在前面</text>
+    </view>
+    <view class="toolbar">
+      <input class="search" placeholder="搜索姓名、学号或技能" placeholder-class="placeholder" value="{{keyword}}"
+             bindinput="onKeyword" confirm-type="search" bindconfirm="search" />
+      <view class="btn btn-quiet" bindtap="search">搜索</view>
+    </view>
+    <view class="empty small" wx:if="{{!candidates.length}}">没有符合条件的志愿者</view>
+    <view wx:for="{{candidates}}" wx:key="volunteer_id" class="row {{item.available ? '' : 'dim'}}">
+      <view class="row-main">
+        <view class="row-title">{{item.name}} <text class="muted small num">{{item.student_no}}</text></view>
+        <view class="row-sub ellipsis">{{item.skill || '未填写技能'}}，已排 {{item.assignment_count}} 个班次</view>
+        <view class="chips" wx:if="{{item.tags.length}}">
+          <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="text" class="chip {{tag.cls}}">{{tag.text}}</text>
+        </view>
+      </view>
+      <view class="row-side" wx:if="{{shift.phase !== 'ended'}}">
+        <view class="btn {{item.available ? '' : 'btn-quiet'}}" hover-class="btn-hover"
+              data-id="{{item.volunteer_id}}" data-name="{{item.name}}" bindtap="assign">安排</view>
+      </view>
+    </view>
+  </view>
+  <view class="foot-hint">不可安排的候选人（文字变灰）仍可点“安排”，系统会说明不能安排的原因。</view>
+</block>

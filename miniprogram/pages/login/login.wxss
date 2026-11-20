@@ -1,0 +1,24 @@
+page { background: #fff; }
+.hero {
+  background: #1F4E8C; color: #fff;
+  padding: calc(env(safe-area-inset-top) + 120rpx) 48rpx 56rpx;
+  position: relative; overflow: hidden;
+}
+.court {
+  position: absolute; right: -60rpx; top: 40rpx; width: 360rpx; height: 300rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.35);
+}
+.court-line { position: absolute; background: rgba(255, 255, 255, 0.35); }
+.court-line.service { left: 0; right: 0; top: 150rpx; height: 6rpx; }
+.court-line.center { left: 177rpx; top: 0; bottom: 150rpx; width: 6rpx; }
+.ball {
+  position: absolute; left: 90rpx; top: 210rpx; width: 44rpx; height: 44rpx;
+  border-radius: 50%; background: #D9E650;
+}
+.brand { position: relative; }
+.title { font-size: 52rpx; font-weight: 700; letter-spacing: 2rpx; }
+.subtitle { margin-top: 16rpx; font-size: 26rpx; opacity: 0.85; max-width: 520rpx; }
+.login-form { margin-top: 0; }
+.demo { margin: 8rpx 32rpx 60rpx; border-top: 1rpx solid #E3E8EF; padding-top: 24rpx; }
+.demo-title { font-size: 24rpx; color: #6B7686; margin-bottom: 8rpx; }
+.demo-item { display: flex; justify-content: space-between; padding: 18rpx 0; font-size: 26rpx; }

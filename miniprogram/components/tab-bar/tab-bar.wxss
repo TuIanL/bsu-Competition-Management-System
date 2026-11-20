@@ -1,0 +1,16 @@
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: flex; background: #fff;
+  border-top: 1rpx solid #E3E8EF;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.item {
+  flex: 1; height: 108rpx; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 26rpx; color: #6B7686;
+}
+/* 选中项：顶部一条球场白线式的蓝色短线 */
+.mark { width: 48rpx; height: 6rpx; border-radius: 3rpx; margin-bottom: 12rpx; background: transparent; }
+.item.on { color: #1F4E8C; font-weight: 600; }
+.item.on .mark { background: #1F4E8C; }
+.pressed { background: #F3F6FA; }

@@ -1,0 +1,36 @@
+<view class="with-tabbar">
+  <view class="intro">报名后由组委会确认安排，安排成功的班次会出现在“我的班次”。</view>
+
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="empty" wx:elif="{{error}}">
+    <view>{{error}}</view>
+    <view class="btn btn-ghost" bindtap="load">重试</view>
+  </view>
+  <view class="empty" wx:elif="{{!list.length}}">目前没有可报名的班次，过段时间再来看看</view>
+
+  <view class="section list" wx:else>
+    <view wx:for="{{list}}" wx:key="shift_id" class="row position">
+      <view class="row-main">
+        <view class="when"><text class="when-hours num">{{item.time.hours}}</text><text class="when-day">{{item.time.day}}</text></view>
+        <view class="row-title">{{item.role_name}}</view>
+        <view class="row-sub">{{item.event_name}}</view>
+        <view class="row-sub" wx:if="{{item.note}}">{{item.note}}</view>
+        <view class="row-sub" wx:if="{{item.role_description}}">{{item.role_description}}</view>
+        <view class="chips">
+          <text class="chip chip-grass" wx:if="{{item.required_skill && item.skill_match}}">符合技能要求</text>
+          <text class="chip chip-grey" wx:elif="{{item.required_skill}}">建议具备：{{item.required_skill}}</text>
+          <text class="chip chip-clay" wx:if="{{item.conflict && !item.application_status}}">与你已安排的班次时间重叠</text>
+          <text class="chip chip-grey" wx:if="{{item.reapply}}">你曾撤回过，可再次报名</text>
+        </view>
+        <view class="seat-line"><seat-bar required="{{item.required_count}}" assigned="{{item.required_count - item.remaining}}" compact="{{true}}" /></view>
+      </view>
+      <view class="row-side column">
+        <view class="btn {{item.action.cls}}" hover-class="{{item.action.tap ? 'btn-hover' : 'none'}}"
+              data-id="{{item.shift_id}}" data-tap="{{item.action.tap}}" bindtap="onAction">{{item.action.text}}</view>
+        <text class="link withdraw" wx:if="{{item.canWithdraw}}" data-id="{{item.application_id}}"
+              data-shift="{{item.shift_id}}" bindtap="withdraw">撤回</text>
+      </view>
+    </view>
+  </view>
+</view>
+<tab-bar role="volunteer" current="positions" />

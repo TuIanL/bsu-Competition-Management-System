@@ -1,0 +1,8 @@
+.intro { padding: 24rpx 32rpx 0; font-size: 26rpx; color: #6B7686; }
+.position { align-items: flex-start; }
+.when { margin-bottom: 6rpx; }
+.when-hours { font-size: 36rpx; font-weight: 700; color: #1F4E8C; }
+.when-day { font-size: 24rpx; color: #6B7686; margin-left: 14rpx; }
+.seat-line { margin-top: 12rpx; }
+.column { flex-direction: column; align-items: flex-end; max-width: 240rpx; }
+.withdraw { margin-top: 16rpx; }

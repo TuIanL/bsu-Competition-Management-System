@@ -1,0 +1,11 @@
+<view class="seat-bar {{compact ? 'compact' : ''}}">
+  <view class="seats" wx:if="{{!asBar}}">
+    <view wx:for="{{seats}}" wx:key="index" class="seat {{item ? 'taken' : ''}}"></view>
+  </view>
+  <view class="bar" wx:else>
+    <view class="bar-fill" style="width: {{percent}}%"></view>
+  </view>
+  <text class="count">{{assigned}}/{{required}}</text>
+  <text class="gap" wx:if="{{gap > 0}}">缺 {{gap}}</text>
+  <text class="full" wx:else>满员</text>
+</view>

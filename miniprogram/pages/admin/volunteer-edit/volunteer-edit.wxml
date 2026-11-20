@@ -1,0 +1,36 @@
+<view class="form">
+  <view class="field">
+    <text class="field-label">学号</text>
+    <input class="field-input num" placeholder="同时是登录账号" placeholder-class="placeholder"
+           value="{{form.student_no}}" data-field="student_no" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">姓名</text>
+    <input class="field-input" placeholder="必填" placeholder-class="placeholder"
+           value="{{form.name}}" data-field="name" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">电话</text>
+    <input class="field-input" type="number" placeholder="选填" placeholder-class="placeholder"
+           value="{{form.phone}}" data-field="phone" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">技能</text>
+    <input class="field-input" placeholder="例如：英语、急救" placeholder-class="placeholder"
+           value="{{form.skill}}" data-field="skill" bindinput="onInput" />
+  </view>
+  <view class="field">
+    <text class="field-label">可以被安排</text>
+    <view class="field-input switch-wrap">
+      <switch checked="{{form.status === 'ACTIVE'}}" color="#1F4E8C" bindchange="toggleStatus" />
+      <text class="muted small">{{form.status === 'ACTIVE' ? '正常' : '已停用，不能登录也不能被安排'}}</text>
+    </view>
+  </view>
+</view>
+<view class="field-hint" wx:if="{{!id}}">新增后初始密码为学号后六位，志愿者首次登录会被提示修改。</view>
+<view class="field-hint" wx:if="{{stats}}">累计安排 {{stats.assignment}} 个班次，已完成 {{stats.completed}} 个。</view>
+
+<view class="form-actions">
+  <view class="btn btn-block {{submitting ? 'btn-off' : ''}}" hover-class="btn-hover" bindtap="submit">{{id ? '保存修改' : '新增志愿者'}}</view>
+  <view class="btn btn-block btn-ghost" wx:if="{{id}}" hover-class="btn-hover" bindtap="resetPassword">重置密码</view>
+</view>

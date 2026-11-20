@@ -1,0 +1,13 @@
+.head { display: flex; justify-content: space-between; align-items: flex-start; padding: 32rpx 32rpx 0; }
+.hello { font-size: 34rpx; font-weight: 600; }
+.head-links .link { margin-left: 28rpx; }
+.logout { color: #C2452D; }
+.headline { margin: 28rpx 32rpx 0; font-size: 34rpx; line-height: 1.6; font-weight: 500; }
+.gap-num { font-size: 72rpx; font-weight: 700; color: #C2452D; margin: 0 4rpx; vertical-align: -6rpx; }
+.headline-sub { font-size: 26rpx; color: #6B7686; margin-top: 8rpx; font-weight: 400; }
+.figures { display: flex; flex-wrap: wrap; margin: 28rpx 32rpx 0; border-top: 1rpx solid #E3E8EF; }
+.figure { width: 33.33%; padding: 24rpx 0 4rpx; }
+.figure-num { font-size: 44rpx; font-weight: 700; }
+.figure-label { font-size: 24rpx; color: #1B2533; }
+.seat-line { margin-top: 12rpx; }
+.more { justify-content: center; }

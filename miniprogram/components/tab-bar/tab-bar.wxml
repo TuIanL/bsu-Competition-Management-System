@@ -1,0 +1,7 @@
+<view class="bar">
+  <view wx:for="{{items}}" wx:key="key" class="item {{item.key === current ? 'on' : ''}}"
+        data-key="{{item.key}}" data-url="{{item.url}}" bindtap="go" hover-class="pressed">
+    <view class="mark"></view>
+    <text>{{item.text}}</text>
+  </view>
+</view>
