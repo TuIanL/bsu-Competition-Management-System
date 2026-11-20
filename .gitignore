@@ -22,3 +22,7 @@ project.private.config.json
 .DS_Store
 Thumbs.db
 *.log
+
+# ---- 后端本地密钥（首次启动自动生成）----
+backend/.secret_key
+.pytest_cache/
