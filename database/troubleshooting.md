@@ -51,9 +51,24 @@ YYYY-MM-DD HH:MM:SS
 
 ## 三、一键恢复数据库
 
-数据改乱了？在 `database` 文件夹打开终端，依次运行：
+数据改乱了？在**项目根目录**运行任一方式：
 
 ```bash
-del sports_volunteer.db
-python init_db.py
-python seed.py
+# 方式一：通过后端重置并启动（推荐）
+python backend/app.py --reset-db
+
+# 方式二：只重建数据库（V1.3 起脚本可在任意目录运行）
+python database/init_db.py
+python database/seed.py
+```
+
+> V1.3 起种子数据按"运行当天"生成：今天有进行中的班次可签到，明天/后天有可报名班次，一周前有已完成记录。
+> 不同日期重置后，班次的具体日期会变，但演示场景（冲突、边界、满员、停用、爽约）不变。
+
+## 四、V1.3 新增约束的报错
+
+| 报错信息 | 含义 |
+|---|---|
+| CHECK constraint failed: start_time IS datetime(start_time) | 班次时间格式不规范（如缺秒、`9:00` 未补零、日期不存在） |
+| CHECK constraint failed: event_date IS date(event_date) | 赛事日期不是合法的 YYYY-MM-DD |
+| COMPLETED assignment cannot change status | 触发器拦截：已完成考勤不能改回其他状态 |

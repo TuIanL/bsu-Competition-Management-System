@@ -2,8 +2,10 @@
 -- 体育赛事志愿者调度系统 · 核心查询 SQL
 -- 文件名：core_queries.sql
 -- 说明：后端 Flask API 直接复制使用，字段名已验证
--- 版本：V1.2.3（PR#2 审阅后：WITHDRAWN 班次重新出现在可报名列表，
---       报名接口：无记录 INSERT / WITHDRAWN 更新原记录 / PENDING·APPROVED·REJECTED 返回 409）
+-- 版本：V1.3（与 backend/ 实现一致）
+--   V1.2.3：WITHDRAWN 班次重新出现在可报名列表；报名接口四分支
+--   V1.3 ：③ 志愿时长改为「有效时长」（裁剪到班次时间内）；
+--          ④ 可报名列表同时返回本人已报名(PENDING/APPROVED)的班次及其状态，便于按钮显示「已报名」
 -- ========================================================
 
 -- ① 查某班次的所有报名人（调度页参考用）
@@ -25,36 +27,43 @@ WHERE a.volunteer_id = ?
 ORDER BY s.start_time DESC;
 
 -- ③ 查我的志愿时长（我的时长页用），返回分钟数
-SELECT SUM(
-  (julianday(check_out_at) - julianday(check_in_at)) * 24 * 60
-) AS total_minutes
-FROM assignment
-WHERE volunteer_id = ?
-  AND status = 'COMPLETED'
-  AND check_in_at IS NOT NULL
-  AND check_out_at IS NOT NULL;
+-- V1.3：只计班次时间范围内的在岗时间 = min(签退, 班次结束) − max(签到, 班次开始)
+--       防止提前很久签到或很晚才签退导致时长虚高；SQLite 的 MIN/MAX 多参数形式是标量函数
+SELECT SUM(MAX(0,
+  (julianday(MIN(a.check_out_at, s.end_time)) - julianday(MAX(a.check_in_at, s.start_time))) * 24 * 60
+)) AS total_minutes
+FROM assignment a
+JOIN shift s ON s.id = a.shift_id
+WHERE a.volunteer_id = ?
+  AND a.status = 'COMPLETED';
 
 -- ④ 查该志愿者可报名的班次（志愿者端报名页用）
--- 参数：volunteer_id（传两次）
-SELECT s.id, e.name AS event_name, r.name AS role_name,
+-- 参数：volunteer_id、当前时间、volunteer_id
+-- 口径：未开始、赛事未结束、本人未被安排、报名不是 REJECTED，
+--       且（仍有名额 或 本人已报名待安排——这样刷新后按钮仍显示「已报名」）
+SELECT s.id AS shift_id, e.name AS event_name, r.name AS role_name,
        s.start_time, s.end_time, s.required_count,
-       s.required_count - COUNT(a.id) AS remaining
+       v.remaining_count AS remaining,
+       ap.id AS application_id, ap.status AS application_status
 FROM shift s
-JOIN event e ON s.event_id = e.id
-JOIN role r ON s.role_id = r.id
-LEFT JOIN assignment a ON a.shift_id = s.id AND a.status IN ('ASSIGNED','COMPLETED')
-WHERE s.start_time > datetime('now','localtime')
+JOIN event e ON e.id = s.event_id
+JOIN role r ON r.id = s.role_id
+JOIN v_shift_status v ON v.shift_id = s.id
+LEFT JOIN application ap ON ap.shift_id = s.id AND ap.volunteer_id = ?
+WHERE s.start_time > ?
   AND e.status IN ('PLANNED','ONGOING')
-  AND s.id NOT IN (SELECT shift_id FROM application WHERE volunteer_id = ? AND status IN ('PENDING','APPROVED','REJECTED'))
   AND s.id NOT IN (SELECT shift_id FROM assignment WHERE volunteer_id = ? AND status IN ('ASSIGNED','COMPLETED'))
-GROUP BY s.id, e.name, r.name, s.start_time, s.end_time, s.required_count
-HAVING remaining > 0;
+  AND (ap.status IS NULL OR ap.status <> 'REJECTED')
+  AND (v.remaining_count > 0 OR ap.status IN ('PENDING','APPROVED'))
+ORDER BY s.start_time;
 
 -- ⑤ 查管理员 Dashboard 缺口排行
+-- V1.3：只看未结束且仍有缺口的班次；参数：当前时间
 SELECT shift_id, event_name, role_name,
        required_count, assigned_count, remaining_count
 FROM v_shift_status
-ORDER BY remaining_count DESC
+WHERE remaining_count > 0 AND end_time > ?
+ORDER BY remaining_count DESC, start_time
 LIMIT 10;
 
 -- ========================================================

@@ -1,8 +1,13 @@
-# 体育赛事志愿者调度数据库——数据字典 (V1.2)
+# 体育赛事志愿者调度数据库——数据字典 (V1.3)
 
 - 项目名称：体育赛事志愿者调度数据库系统（双端小程序协同版）
 - 数据库类型：SQLite
-- 文档版本：V1.2（在 V1.0 冻结版基础上，为支撑志愿者端新增字段与表；本版本定稿后同样不再变更结构）
+- 文档版本：V1.3（在 V1.2 基础上只做加固：不改任何表名、字段名、已有约束）
+- V1.3 变更摘要：
+  1. `event.event_date`、`shift.start_time/end_time` 增加格式 CHECK（必须是规范的日期/时间，否则字符串比较会出错）
+  2. 新增触发器 `trg_assignment_completed_final`：`COMPLETED` 记录不可再改状态（原本只写在说明里，现在由数据库强制）
+  3. 视图 `v_shift_status` 末尾追加 `event_id`、`role_id`、`note` 三列
+  4. 种子数据改为相对运行日期生成；密码改为加盐 PBKDF2（`pbkdf2:sha256:100000$盐$哈希`）
 - 相对 V1.0 的变更摘要：
   1. `volunteer` 表新增 `password_hash`，支撑志愿者自主登录
   2. 新增 `application`（报名）表，记录志愿者对具体班次的报名意向
@@ -82,7 +87,7 @@
 | required_count | 需要人数 | INTEGER | 非空、大于 0 | 该班次需要几个志愿者 |
 | note | 备注 | TEXT | 可空 | 补充说明 |
 
-补充约束：`CHECK (start_time < end_time)`
+补充约束：`CHECK (start_time < end_time)`；【V1.3】`CHECK (start_time IS datetime(start_time))`、`CHECK (end_time IS datetime(end_time))`，保证时间是规范的 `YYYY-MM-DD HH:MM:SS`（如 `2026-09-28 9:00`、`2026-02-30 09:00:00` 会被拒绝）。用 `IS` 而不是 `=`：非法时间时 `datetime()` 返回 NULL，`= NULL` 的结果是 NULL，CHECK 会把它当作通过。
 
 ---
 
@@ -159,3 +164,16 @@
 15. **`application` 中的报名意向不会自动写入 `assignment`；是否采纳报名、最终排班，仍由管理员在调度页手动执行。【新增，避免误解为自动分配】**
 16. `assignment` 表中 `check_out_at` 必须晚于或等于 `check_in_at`，且 `check_out_at` 非空时 `check_in_at` 必须也非空：`CHECK (check_out_at IS NULL OR (check_in_at IS NOT NULL AND check_out_at >= check_in_at))`。
 17. `assignment` 表中 `status` 为 `COMPLETED` 时，`check_in_at` 和 `check_out_at` 必须都非空：`CHECK (status != 'COMPLETED' OR (check_in_at IS NOT NULL AND check_out_at IS NOT NULL))`。
+18. 【V1.3】`event.event_date` 必须是合法日期：`CHECK (event_date IS date(event_date))`。
+19. 【V1.3】`shift.start_time`、`shift.end_time` 必须是规范时间：`CHECK (start_time IS datetime(start_time))`、`CHECK (end_time IS datetime(end_time))`。
+20. 【V1.3】触发器 `trg_assignment_completed_final`：`assignment.status` 为 `COMPLETED` 后不允许改为其他状态（`RAISE(ABORT)`），对应第 7 节状态流转说明。
+21. 【V1.3】`password_hash` 统一使用加盐 PBKDF2-SHA256（10 万轮），格式 `pbkdf2:sha256:100000$<盐>$<哈希>`，由后端 `werkzeug.security` 校验；不再使用无盐 sha256。
+
+## 9. 视图 v_shift_status（V1.3）
+
+| 列 | 说明 |
+|---|---|
+| shift_id, event_name, role_name, start_time, end_time, required_count | 班次基本信息 |
+| assigned_count | 有效调度人数（`ASSIGNED` + `COMPLETED`，不含 `CANCELLED`） |
+| remaining_count | `required_count − assigned_count`，≤ 0 即满员 |
+| event_id, role_id, note | 【V1.3 追加在末尾】便于按赛事筛选，不影响按位置读取前 8 列的旧代码 |

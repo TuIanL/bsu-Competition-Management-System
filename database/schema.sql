@@ -1,14 +1,20 @@
 -- ========================================================
 -- 体育赛事志愿者调度数据库系统 (双端小程序协同版)
 -- 文件名：schema.sql
--- 版本：V1.2 (包含志愿者登录、报名意向、签到签退与严格约束)
+-- 版本：V1.3 (在 V1.2 基础上：时间格式 CHECK、COMPLETED 不可回退触发器、视图补充关联字段)
 -- 数据库：SQLite
+-- V1.3 变更（均为"加固"，不改任何已有表名/字段名）：
+--   1) event.event_date、shift.start_time/end_time 增加格式 CHECK，杜绝
+--      '2026-10-28 9:00' 这类不规范时间导致字符串比较出错；
+--   2) 新增触发器 trg_assignment_completed_final：COMPLETED 记录不允许再改状态；
+--   3) 视图 v_shift_status 在末尾追加 event_id / role_id / note 三列（原列顺序不变）。
 -- ========================================================
 
 -- 1. 开启外键约束（必须）
 PRAGMA foreign_keys = ON;
 
 -- 2. 清理旧对象（按依赖倒序删除，方便一键重建）
+DROP TRIGGER IF EXISTS trg_assignment_completed_final;
 DROP VIEW IF EXISTS v_shift_status;
 DROP TABLE IF EXISTS assignment;
 DROP TABLE IF EXISTS application;
@@ -46,7 +52,8 @@ CREATE TABLE volunteer (
 CREATE TABLE event (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    event_date TEXT NOT NULL,
+    event_date TEXT NOT NULL
+        CHECK (event_date IS date(event_date)),         -- V1.3：必须是合法的 YYYY-MM-DD（用 IS 防止 NULL 放行）
     venue TEXT,
     status TEXT NOT NULL DEFAULT 'PLANNED'
         CHECK (status IN ('PLANNED','ONGOING','FINISHED'))
@@ -71,6 +78,9 @@ CREATE TABLE shift (
     note TEXT,
     FOREIGN KEY (event_id) REFERENCES event(id) ON UPDATE CASCADE ON DELETE RESTRICT,
     FOREIGN KEY (role_id) REFERENCES role(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    -- V1.3：必须是 YYYY-MM-DD HH:MM:SS，保证下面的字符串比较等价于时间比较
+    CHECK (start_time IS datetime(start_time)),
+    CHECK (end_time IS datetime(end_time)),
     CHECK (start_time < end_time)
 );
 
@@ -133,9 +143,25 @@ SELECT
     s.required_count,
     -- 统计有效排班：ASSIGNED(进行中) 和 COMPLETED(已完成) 都算占用名额，CANCELLED 不算
     COUNT(CASE WHEN a.status IN ('ASSIGNED','COMPLETED') THEN 1 END) AS assigned_count,
-    s.required_count - COUNT(CASE WHEN a.status IN ('ASSIGNED','COMPLETED') THEN 1 END) AS remaining_count
+    s.required_count - COUNT(CASE WHEN a.status IN ('ASSIGNED','COMPLETED') THEN 1 END) AS remaining_count,
+    -- V1.3 追加列（放在末尾，不影响按位置读取前 8 列的旧代码）
+    s.event_id,
+    s.role_id,
+    s.note
 FROM shift AS s
 JOIN event AS e ON s.event_id = e.id
 JOIN role AS r ON s.role_id = r.id
 LEFT JOIN assignment AS a ON s.id = a.shift_id
 GROUP BY s.id, e.name, r.name, s.start_time, s.end_time, s.required_count;
+
+-- ========================================================
+-- 6. 触发器（V1.3 新增）
+-- 已完成（COMPLETED）的考勤记录不可再改为其他状态，防止误操作篡改考勤
+-- （数据字典 assignment 状态流转说明中的规则，由数据库强制执行）
+-- ========================================================
+CREATE TRIGGER trg_assignment_completed_final
+BEFORE UPDATE OF status ON assignment
+WHEN OLD.status = 'COMPLETED' AND NEW.status <> 'COMPLETED'
+BEGIN
+    SELECT RAISE(ABORT, 'COMPLETED assignment cannot change status');
+END;
